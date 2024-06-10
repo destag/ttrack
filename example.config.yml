@@ -1,0 +1,3 @@
+github_token:
+  pass: github/personal
+toggl_token: my_toggl_token
