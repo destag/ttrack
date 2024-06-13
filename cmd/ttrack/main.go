@@ -73,7 +73,7 @@ func main() {
 				Name:  "stop",
 				Usage: "stop current tracking",
 				Action: func(ctx *cli.Context) error {
-					cfg := ctx.Context.Value("cfg").(*config.Config)
+					cfg := ctx.Context.Value(configKey).(*config.Config)
 					c := toggl.NewClient(cfg.TogglToken.String())
 
 					te, err := c.GetCurrentTimeEntry()
