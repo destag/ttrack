@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/destag/ttrack/internal/config"
 	"github.com/destag/ttrack/internal/toggl"
+	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 )
 
@@ -63,7 +66,10 @@ func main() {
 					if te.ID == 0 {
 						fmt.Println("No tracking")
 					} else {
-						fmt.Printf("Tracking task '%s'\n", te.Description)
+						dur := time.Since(te.Start).Truncate(time.Second)
+						fmt.Printf("Tracking %s %s\n",
+							color.GreenString(te.Description),
+							color.WhiteString(dur.String()))
 					}
 
 					return nil

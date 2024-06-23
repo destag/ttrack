@@ -1,10 +1,13 @@
 package toggl
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
 type Client struct {
@@ -21,9 +24,9 @@ func NewClient(token string) *Client {
 	}
 }
 
-func (c *Client) request(method, path string) ([]byte, error) {
+func (c *Client) request(method, path string, body io.Reader) ([]byte, error) {
 	url := fmt.Sprintf("%s%s", c.url, path)
-	req, err := http.NewRequest(method, url, nil)
+	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
 	}
@@ -39,6 +42,11 @@ func (c *Client) request(method, path string) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
+		s, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println("error body:", string(s), time.Now().UTC().Format(time.TimeOnly))
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
@@ -46,17 +54,18 @@ func (c *Client) request(method, path string) ([]byte, error) {
 }
 
 type TimeEntry struct {
-	ID          int    `json:"id"`
-	At          string `json:"at"`
-	ClientName  string `json:"client_name"`
-	Description string `json:"description"`
-	ProjectName string `json:"project_name"`
-	WorkspaceID int    `json:"workspace_id"`
+	ID          int       `json:"id"`
+	At          string    `json:"at"`
+	Start       time.Time `json:"start"`
+	ClientName  string    `json:"client_name"`
+	Description string    `json:"description"`
+	ProjectName string    `json:"project_name"`
+	WorkspaceID int       `json:"workspace_id"`
 }
 
 func (c *Client) GetCurrentTimeEntry() (*TimeEntry, error) {
 	path := "/me/time_entries/current"
-	body, err := c.request(http.MethodGet, path)
+	body, err := c.request(http.MethodGet, path, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +85,7 @@ func (c *Client) StopTimeEntry(te *TimeEntry) error {
 		te.WorkspaceID,
 		te.ID,
 	)
-	_, err := c.request(http.MethodPatch, path)
+	_, err := c.request(http.MethodPatch, path, nil)
 	if err != nil {
 		return err
 	}
