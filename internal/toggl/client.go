@@ -24,11 +24,11 @@ func NewClient(token string) *Client {
 	}
 }
 
-func (c *Client) request(method, path string, body io.Reader) ([]byte, error) {
+func (c *Client) doRequest(method, path string, body io.Reader, out any) error {
 	url := fmt.Sprintf("%s%s", c.url, path)
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	req.Header.Set("Accept", "application/json")
@@ -36,7 +36,7 @@ func (c *Client) request(method, path string, body io.Reader) ([]byte, error) {
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	defer resp.Body.Close()
@@ -44,13 +44,33 @@ func (c *Client) request(method, path string, body io.Reader) ([]byte, error) {
 	if resp.StatusCode != 200 {
 		s, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		fmt.Println("error body:", string(s), time.Now().UTC().Format(time.TimeOnly))
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	return io.ReadAll(resp.Body)
+	if out == nil {
+		return nil
+	}
+
+	return json.NewDecoder(resp.Body).Decode(&out)
+}
+
+type CurrentUser struct {
+	ID                 int `json:"id"`
+	DefaultWorkspaceID int `json:"default_workspace_id"`
+}
+
+func (c *Client) GetUserInfo() (*CurrentUser, error) {
+	var data CurrentUser
+	path := "/me"
+	err := c.doRequest(http.MethodGet, path, nil, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return &data, nil
 }
 
 type TimeEntry struct {
@@ -64,14 +84,9 @@ type TimeEntry struct {
 }
 
 func (c *Client) GetCurrentTimeEntry() (*TimeEntry, error) {
-	path := "/me/time_entries/current"
-	body, err := c.request(http.MethodGet, path, nil)
-	if err != nil {
-		return nil, err
-	}
-
 	var data TimeEntry
-	err = json.Unmarshal(body, &data)
+	path := "/me/time_entries/current"
+	err := c.doRequest(http.MethodGet, path, nil, &data)
 	if err != nil {
 		return nil, err
 	}
@@ -85,10 +100,44 @@ func (c *Client) StopTimeEntry(te *TimeEntry) error {
 		te.WorkspaceID,
 		te.ID,
 	)
-	_, err := c.request(http.MethodPatch, path, nil)
+	return c.doRequest(http.MethodPatch, path, nil, nil)
+}
+
+type StartTimeEntryParams struct {
+	Description string `json:"description"`
+	Start       string `json:"start"`
+	CreatedWith string `json:"created_with"`
+	WorkspaceID int    `json:"workspace_id"`
+	Duration    int    `json:"duration"`
+}
+
+func (c *Client) StartTimeEntry(workspaceID int, title string) error {
+	te, err := c.GetCurrentTimeEntry()
 	if err != nil {
 		return err
 	}
 
-	return nil
+	fmt.Println("out workspaces:", te.WorkspaceID)
+
+	if te.WorkspaceID != 0 {
+		return errors.New("time tracker already started")
+	}
+
+	data := StartTimeEntryParams{
+		Description: title,
+		Start:       time.Now().UTC().Format(time.RFC3339),
+		CreatedWith: "ttrack",
+		WorkspaceID: workspaceID,
+		Duration:    -1,
+	}
+
+	bs, err := json.Marshal(&data)
+	if err != nil {
+		return err
+	}
+
+	reader := bytes.NewReader(bs)
+
+	path := fmt.Sprintf("/workspaces/%d/time_entries", workspaceID)
+	return c.doRequest(http.MethodPost, path, reader, nil)
 }
