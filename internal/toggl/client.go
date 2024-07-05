@@ -117,8 +117,6 @@ func (c *Client) StartTimeEntry(workspaceID int, title string) error {
 		return err
 	}
 
-	fmt.Println("out workspaces:", te.WorkspaceID)
-
 	if te.WorkspaceID != 0 {
 		return errors.New("time tracker already started")
 	}

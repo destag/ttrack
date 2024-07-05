@@ -47,9 +47,10 @@ func (c *Client) get(path string) ([]byte, error) {
 }
 
 type Issue struct {
-	ID    int    `json:"id"`
-	Title string `json:"title"`
-	Body  string `json:"body"`
+	ID     int    `json:"id"`
+	Number int    `json:"number"`
+	Title  string `json:"title"`
+	Body   string `json:"body"`
 }
 
 func (c *Client) GetIssue(project string, id int) (*Issue, error) {
