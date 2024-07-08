@@ -103,6 +103,17 @@ func (c *Client) StopTimeEntry(te *TimeEntry) error {
 	return c.doRequest(http.MethodPatch, path, nil, nil)
 }
 
+func (c *Client) GetTimeEntries() ([]*TimeEntry, error) {
+	var data []*TimeEntry
+	path := "/me/time_entries?meta=true"
+	err := c.doRequest(http.MethodGet, path, nil, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
 type StartTimeEntryParams struct {
 	Description string `json:"description"`
 	Start       string `json:"start"`

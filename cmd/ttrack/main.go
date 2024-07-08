@@ -132,6 +132,7 @@ func main() {
 					return c.StopTimeEntry(te)
 				},
 			},
+			cmdResume,
 		},
 	}
 
