@@ -17,9 +17,10 @@ const (
 
 func main() {
 	app := &cli.App{
-		Name:           "ttrack",
-		Usage:          "track time in toggl",
-		DefaultCommand: "status",
+		Name:                 "ttrack",
+		Usage:                "track time in toggl",
+		DefaultCommand:       "status",
+		EnableBashCompletion: true,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:       "config",
@@ -41,6 +42,7 @@ func main() {
 			cmdStatus,
 			cmdStop,
 			cmdResume,
+			cmdCompletion,
 		},
 	}
 
