@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/destag/ttrack/autocomplete"
+	"github.com/destag/ttrack/internal/autocomplete"
 	"github.com/urfave/cli/v2"
 )
 
