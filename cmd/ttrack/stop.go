@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 
+	"github.com/fatih/color"
+	"github.com/urfave/cli/v2"
+
 	"github.com/destag/ttrack/internal/config"
 	"github.com/destag/ttrack/internal/toggl"
-	"github.com/urfave/cli/v2"
 )
 
 var cmdStop = &cli.Command{
@@ -28,6 +30,6 @@ func runStop(ctx *cli.Context) error {
 		return nil
 	}
 
-	fmt.Printf("Stopping tracking '%s'\n", te.Description)
+	fmt.Printf("Stopping tracking %s\n", color.GreenString(te.Description))
 	return c.StopTimeEntry(te)
 }
