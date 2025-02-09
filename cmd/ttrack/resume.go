@@ -4,9 +4,10 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/urfave/cli/v2"
+
 	"github.com/destag/ttrack/internal/config"
 	"github.com/destag/ttrack/internal/toggl"
-	"github.com/urfave/cli/v2"
 )
 
 var cmdResume = &cli.Command{
@@ -40,5 +41,7 @@ func runResume(ctx *cli.Context) error {
 	}
 
 	te = tes[0]
-	return c.StartTimeEntry(te.WorkspaceID, te.Description)
+
+	fmt.Println("Resuming tracker")
+	return c.StartTimeEntry(te.WorkspaceID, te.Description, te.ProjectName)
 }
