@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/urfave/cli/v2"
+
 	"github.com/destag/ttrack/internal/config"
 	"github.com/destag/ttrack/internal/github"
 	"github.com/destag/ttrack/internal/toggl"
-	"github.com/urfave/cli/v2"
 )
 
 var cmdStart = &cli.Command{
@@ -37,6 +38,11 @@ func runStart(ctx *cli.Context) error {
 		return cli.Exit("id not provided", 1)
 	}
 
+	togglProject, ok := cfg.Projects[project]
+	if !ok {
+		return cli.Exit("project not configured", 1)
+	}
+
 	issueID, err := strconv.Atoi(id)
 	if err != nil {
 		return err
@@ -54,5 +60,5 @@ func runStart(ctx *cli.Context) error {
 		return err
 	}
 
-	return c.StartTimeEntry(usr.DefaultWorkspaceID, title)
+	return c.StartTimeEntry(usr.DefaultWorkspaceID, title, togglProject)
 }

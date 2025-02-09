@@ -115,6 +115,7 @@ func (c *Client) GetTimeEntries() ([]*TimeEntry, error) {
 }
 
 type StartTimeEntryParams struct {
+	Project     int    `json:"project_id"`
 	Description string `json:"description"`
 	Start       string `json:"start"`
 	CreatedWith string `json:"created_with"`
@@ -122,7 +123,7 @@ type StartTimeEntryParams struct {
 	Duration    int    `json:"duration"`
 }
 
-func (c *Client) StartTimeEntry(workspaceID int, title string) error {
+func (c *Client) StartTimeEntry(workspaceID int, title string, project string) error {
 	te, err := c.GetCurrentTimeEntry()
 	if err != nil {
 		return err
@@ -132,7 +133,13 @@ func (c *Client) StartTimeEntry(workspaceID int, title string) error {
 		return errors.New("time tracker already started")
 	}
 
+	p, err := c.GetProject(workspaceID, project)
+	if err != nil {
+		return err
+	}
+
 	data := StartTimeEntryParams{
+		Project:     p.ID,
 		Description: title,
 		Start:       time.Now().UTC().Format(time.RFC3339),
 		CreatedWith: "ttrack",
@@ -149,4 +156,26 @@ func (c *Client) StartTimeEntry(workspaceID int, title string) error {
 
 	path := fmt.Sprintf("/workspaces/%d/time_entries", workspaceID)
 	return c.doRequest(http.MethodPost, path, reader, nil)
+}
+
+type Project struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+func (c *Client) GetProject(workspaceID int, name string) (*Project, error) {
+	var data []Project
+	path := fmt.Sprintf("/workspaces/%d/projects", workspaceID)
+	err := c.doRequest(http.MethodGet, path, nil, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, p := range data {
+		if p.Name == name {
+			return &p, nil
+		}
+	}
+
+	return nil, errors.New("project not found")
 }

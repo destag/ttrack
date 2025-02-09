@@ -49,8 +49,9 @@ func expandPath(path string) (string, error) {
 }
 
 type Config struct {
-	GithubToken secret `yaml:"github_token"`
-	TogglToken  secret `yaml:"toggl_token"`
+	GithubToken secret            `yaml:"github_token"`
+	TogglToken  secret            `yaml:"toggl_token"`
+	Projects    map[string]string `yaml:"projects"`
 }
 
 func Load(path string) (*Config, error) {
