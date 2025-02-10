@@ -1,0 +1,7 @@
+linters:
+  enable:
+    - forbidigo
+linters-settings:
+  forbidigo:
+    forbid:
+      - "fmt.Println"
