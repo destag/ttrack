@@ -5,8 +5,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/destag/ttrack/internal/config"
 	"github.com/urfave/cli/v2"
+
+	"github.com/destag/ttrack/internal/config"
 )
 
 type contextKey string
@@ -38,11 +39,12 @@ func main() {
 			},
 		},
 		Commands: []*cli.Command{
+			cmdCompletion,
+			cmdReport,
+			cmdResume,
 			cmdStart,
 			cmdStatus,
 			cmdStop,
-			cmdResume,
-			cmdCompletion,
 		},
 	}
 

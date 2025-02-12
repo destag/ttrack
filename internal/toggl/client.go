@@ -13,6 +13,7 @@ import (
 type Client struct {
 	token      string
 	url        string
+	reportsURL string
 	httpClient *http.Client
 }
 
@@ -20,6 +21,7 @@ func NewClient(token string) *Client {
 	return &Client{
 		token:      token,
 		url:        "https://api.track.toggl.com/api/v9",
+		reportsURL: "https://api.track.toggl.com/reports/api/v3",
 		httpClient: &http.Client{},
 	}
 }
@@ -178,4 +180,74 @@ func (c *Client) GetProject(workspaceID int, name string) (*Project, error) {
 	}
 
 	return nil, errors.New("project not found")
+}
+
+type Task struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	TrackedTime int    `json:"tracked_seconds"`
+}
+
+func (c *Client) GetTasks(workspaceID, projectID int) ([]*Task, error) {
+	var data interface{}
+	path := fmt.Sprintf("/workspaces/%d/tasks", workspaceID)
+	fmt.Println("path:", path)
+	err := c.doRequest(http.MethodGet, path, nil, &data)
+	if err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+type Report struct {
+	Description string `json:"description"`
+	TimeEntries []struct {
+		Seconds int `json:"seconds"`
+	} `json:"time_entries"`
+}
+
+func (r Report) Sum() time.Duration {
+	var sum int
+	for _, te := range r.TimeEntries {
+		sum += te.Seconds
+	}
+	return time.Duration(sum) * time.Second
+}
+
+func (c *Client) GetSummaryReport(workspaceID, projectID int) (*Task, error) {
+	// FIXME: shouldn't change it here
+	c.url = c.reportsURL
+	var data []Report
+	path := fmt.Sprintf("/workspace/%d/search/time_entries", workspaceID)
+
+	bs, err := json.Marshal(
+		map[string]interface{}{
+			"start_date":  "2025-02-01",
+			"end_date":    "2025-02-11",
+			"project_ids": []int{projectID},
+			// "description": "description",
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	reader := bytes.NewReader(bs)
+
+	err = c.doRequest(http.MethodPost, path, reader, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("reports: %+v\n", data)
+
+	var sum time.Duration
+	for _, report := range data {
+		fmt.Printf("duration: %s\n", report.Sum().String())
+		sum += report.Sum()
+	}
+	fmt.Printf("summary: %s\n", sum.String())
+
+	fmt.Printf("project_id: %d\n", projectID)
+	return nil, nil
 }
