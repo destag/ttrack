@@ -19,9 +19,9 @@ const (
 
 func main() {
 	ver := "unknown"
-	bi, ok := debug.ReadBuildInfo()
+	info, ok := debug.ReadBuildInfo()
 	if ok {
-		ver = bi.Main.Version
+		ver = info.Main.Version
 	}
 
 	app := &cli.App{
