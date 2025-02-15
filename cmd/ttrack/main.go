@@ -4,9 +4,11 @@ import (
 	"context"
 	"log"
 	"os"
+	"runtime/debug"
+
+	"github.com/urfave/cli/v2"
 
 	"github.com/destag/ttrack/internal/config"
-	"github.com/urfave/cli/v2"
 )
 
 type contextKey string
@@ -16,11 +18,18 @@ const (
 )
 
 func main() {
+	ver := "unknown"
+	info, ok := debug.ReadBuildInfo()
+	if ok {
+		ver = info.Main.Version
+	}
+
 	app := &cli.App{
 		Name:                 "ttrack",
 		Usage:                "track time in toggl",
 		DefaultCommand:       "status",
 		EnableBashCompletion: true,
+		Version:              ver,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:       "config",
