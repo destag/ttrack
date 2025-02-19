@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/destag/ttrack/internal/config"
-	"github.com/destag/ttrack/internal/toggl"
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
+
+	"github.com/destag/ttrack/internal/config"
+	"github.com/destag/ttrack/internal/toggl"
 )
 
 var cmdStatus = &cli.Command{

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 
 	"github.com/urfave/cli/v2"
@@ -12,10 +13,11 @@ import (
 )
 
 var cmdStart = &cli.Command{
-	Name:      "start",
-	Usage:     "start time tracker",
-	ArgsUsage: "<project_name> <issue_id>",
-	Action:    runStart,
+	Name:            "start",
+	Usage:           "start time tracker",
+	ArgsUsage:       "<project_name> <issue_id>",
+	Action:          runStart,
+	HideHelpCommand: true,
 }
 
 func runStart(ctx *cli.Context) error {
@@ -24,23 +26,23 @@ func runStart(ctx *cli.Context) error {
 	c := toggl.NewClient(cfg.TogglToken.String())
 	gh := github.NewClient(cfg.GithubToken.String())
 
-	if ctx.NArg() != 2 {
+	var project config.Project
+	var id string
+	for rgx, pr := range cfg.Projects {
+		re := regexp.MustCompile(rgx)
+		if matches := re.FindStringSubmatch(ctx.Args().Get(0)); len(matches) > 1 {
+			project = pr
+			id = matches[1]
+			break
+		}
+	}
+
+	if ctx.NArg() != 1 {
 		return cli.ShowSubcommandHelp(ctx)
 	}
 
-	project := ctx.Args().Get(0)
-	if project == "" {
+	if ctx.Args().Get(0) == "" {
 		return cli.Exit("project not provided", 1)
-	}
-
-	id := ctx.Args().Get(1)
-	if id == "" {
-		return cli.Exit("id not provided", 1)
-	}
-
-	togglProject, ok := cfg.Projects[project]
-	if !ok {
-		return cli.Exit("project not configured", 1)
 	}
 
 	issueID, err := strconv.Atoi(id)
@@ -48,7 +50,7 @@ func runStart(ctx *cli.Context) error {
 		return err
 	}
 
-	issue, err := gh.GetIssue(project, issueID)
+	issue, err := gh.GetIssue(project.Project, issueID)
 	if err != nil {
 		return err
 	}
@@ -60,5 +62,5 @@ func runStart(ctx *cli.Context) error {
 		return err
 	}
 
-	return c.StartTimeEntry(usr.DefaultWorkspaceID, title, togglProject)
+	return c.StartTimeEntry(usr.DefaultWorkspaceID, title, project.Name)
 }
