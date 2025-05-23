@@ -9,6 +9,7 @@ import (
 
 	"github.com/destag/ttrack/internal/config"
 	"github.com/destag/ttrack/internal/github"
+	"github.com/destag/ttrack/internal/jira"
 	"github.com/destag/ttrack/internal/toggl"
 )
 
@@ -25,6 +26,7 @@ func runStart(ctx *cli.Context) error {
 	cfg := ctx.Context.Value(configKey).(*config.Config)
 	c := toggl.NewClient(cfg.TogglToken.String())
 	gh := github.NewClient(cfg.GithubToken.String())
+	jc := jira.NewClient(cfg.Jira.Username, cfg.Jira.Token.String(), cfg.Jira.BaseURL)
 
 	var project config.Project
 	var id string
@@ -45,17 +47,30 @@ func runStart(ctx *cli.Context) error {
 		return cli.Exit("project not provided", 1)
 	}
 
-	issueID, err := strconv.Atoi(id)
-	if err != nil {
-		return err
-	}
+	var title string
 
-	issue, err := gh.GetIssue(project.Project, issueID)
-	if err != nil {
-		return err
-	}
+	switch project.Type {
+	case "jira":
+		task, err := jc.GetTask(ctx.Args().Get(0))
+		if err != nil {
+			return err
+		}
+		title = fmt.Sprintf("%s %s", task.ID, task.Description)
+	case "github":
+		issueID, err := strconv.Atoi(id)
+		if err != nil {
+			return err
+		}
 
-	title := fmt.Sprintf("%s #%d", issue.Title, issue.Number)
+		issue, err := gh.GetIssue(project.Project, issueID)
+		if err != nil {
+			return err
+		}
+
+		title = fmt.Sprintf("%s #%d", issue.Title, issue.Number)
+	default:
+		return cli.Exit("project type not supported", 1)
+	}
 
 	usr, err := c.GetUserInfo()
 	if err != nil {

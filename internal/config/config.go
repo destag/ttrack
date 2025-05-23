@@ -54,9 +54,16 @@ type Project struct {
 	Project string `yaml:"project"`
 }
 
+type Jira struct {
+	Username string `yaml:"username"`
+	Token    secret `yaml:"token"`
+	BaseURL  string `yaml:"base_url"`
+}
+
 type Config struct {
 	GithubToken secret             `yaml:"github_token"`
 	TogglToken  secret             `yaml:"toggl_token"`
+	Jira        Jira               `yaml:"jira"`
 	Projects    map[string]Project `yaml:"projects"`
 }
 
