@@ -13,7 +13,7 @@ import (
 
 var cmdStatus = &cli.Command{
 	Name:   "status",
-	Usage:  "check current tracking",
+	Usage:  "Check current tracking",
 	Action: runStatus,
 }
 

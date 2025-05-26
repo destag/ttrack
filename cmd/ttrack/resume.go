@@ -11,9 +11,9 @@ import (
 )
 
 var cmdResume = &cli.Command{
-	Name:        "resume",
-	Description: "resumes last tracking",
-	Action:      runResume,
+	Name:   "resume",
+	Usage:  "Resumes last tracking",
+	Action: runResume,
 }
 
 func runResume(ctx *cli.Context) error {

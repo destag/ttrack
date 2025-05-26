@@ -3,13 +3,14 @@ package main
 import (
 	"fmt"
 
-	"github.com/destag/ttrack/internal/autocomplete"
 	"github.com/urfave/cli/v2"
+
+	"github.com/destag/ttrack/internal/autocomplete"
 )
 
 var cmdCompletion = &cli.Command{
 	Name:   "completion",
-	Usage:  "generate zsh autocompletion",
+	Usage:  "Generate zsh autocompletion",
 	Action: runCompletion,
 }
 

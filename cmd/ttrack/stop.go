@@ -12,7 +12,7 @@ import (
 
 var cmdStop = &cli.Command{
 	Name:   "stop",
-	Usage:  "stop current tracking",
+	Usage:  "Stop current tracking",
 	Action: runStop,
 }
 
