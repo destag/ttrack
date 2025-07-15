@@ -48,10 +48,23 @@ func expandPath(path string) (string, error) {
 	return path, nil
 }
 
+type Project struct {
+	Name    string `yaml:"name"`
+	Type    string `yaml:"type"`
+	Project string `yaml:"project"`
+}
+
+type Jira struct {
+	Username string `yaml:"username"`
+	Token    secret `yaml:"token"`
+	BaseURL  string `yaml:"base_url"`
+}
+
 type Config struct {
-	GithubToken secret            `yaml:"github_token"`
-	TogglToken  secret            `yaml:"toggl_token"`
-	Projects    map[string]string `yaml:"projects"`
+	GithubToken secret             `yaml:"github_token"`
+	TogglToken  secret             `yaml:"toggl_token"`
+	Jira        Jira               `yaml:"jira"`
+	Projects    map[string]Project `yaml:"projects"`
 }
 
 func Load(path string) (*Config, error) {

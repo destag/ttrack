@@ -19,8 +19,7 @@ const (
 
 func main() {
 	ver := "unknown"
-	info, ok := debug.ReadBuildInfo()
-	if ok {
+	if info, ok := debug.ReadBuildInfo(); ok {
 		ver = info.Main.Version
 	}
 
