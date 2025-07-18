@@ -15,6 +15,7 @@ import (
 
 var cmdStart = &cli.Command{
 	Name:            "start",
+	Aliases:         []string{"s"},
 	Usage:           "Start time tracker",
 	ArgsUsage:       "<project_name> <issue_id>",
 	Action:          runStart,

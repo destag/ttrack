@@ -10,10 +10,11 @@ import (
 	"github.com/destag/ttrack/internal/toggl"
 )
 
-var cmdStop = &cli.Command{
-	Name:   "stop",
-	Usage:  "Stop current tracking",
-	Action: runStop,
+var cmdFinish = &cli.Command{
+	Name:    "finish",
+	Aliases: []string{"f"},
+	Usage:   "Stop current tracking",
+	Action:  runStop,
 }
 
 func runStop(ctx *cli.Context) error {

@@ -48,7 +48,7 @@ func main() {
 		Commands: []*cli.Command{
 			cmdStart,
 			cmdStatus,
-			cmdStop,
+			cmdFinish,
 			cmdResume,
 			cmdCompletion,
 		},
