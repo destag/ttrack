@@ -1,11 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strconv"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/destag/ttrack/internal/config"
 	"github.com/destag/ttrack/internal/github"
@@ -22,9 +23,9 @@ var cmdStart = &cli.Command{
 	HideHelpCommand: true,
 }
 
-func runStart(ctx *cli.Context) error {
+func runStart(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println("Starting tracker")
-	cfg := ctx.Context.Value(configKey).(*config.Config)
+	cfg := cmd.Root().Metadata[configKey].(*config.Config)
 	c := toggl.NewClient(cfg.TogglToken.String())
 	gh := github.NewClient(cfg.GithubToken.String())
 	jc := jira.NewClient(cfg.Jira.Username, cfg.Jira.Token.String(), cfg.Jira.BaseURL)
@@ -33,18 +34,18 @@ func runStart(ctx *cli.Context) error {
 	var id string
 	for rgx, pr := range cfg.Projects {
 		re := regexp.MustCompile(rgx)
-		if matches := re.FindStringSubmatch(ctx.Args().Get(0)); len(matches) > 1 {
+		if matches := re.FindStringSubmatch(cmd.Args().Get(0)); len(matches) > 1 {
 			project = pr
 			id = matches[1]
 			break
 		}
 	}
 
-	if ctx.NArg() != 1 {
-		return cli.ShowSubcommandHelp(ctx)
+	if cmd.NArg() != 1 {
+		return cli.ShowAppHelp(cmd)
 	}
 
-	if ctx.Args().Get(0) == "" {
+	if cmd.Args().Get(0) == "" {
 		return cli.Exit("project not provided", 1)
 	}
 
@@ -52,7 +53,7 @@ func runStart(ctx *cli.Context) error {
 
 	switch project.Type {
 	case "jira":
-		task, err := jc.GetTask(ctx.Args().Get(0))
+		task, err := jc.GetTask(cmd.Args().Get(0))
 		if err != nil {
 			return err
 		}

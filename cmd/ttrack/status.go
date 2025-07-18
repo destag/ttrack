@@ -1,11 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/destag/ttrack/internal/config"
 	"github.com/destag/ttrack/internal/toggl"
@@ -17,8 +18,8 @@ var cmdStatus = &cli.Command{
 	Action: runStatus,
 }
 
-func runStatus(ctx *cli.Context) error {
-	cfg := ctx.Context.Value(configKey).(*config.Config)
+func runStatus(ctx context.Context, cmd *cli.Command) error {
+	cfg := cmd.Root().Metadata[configKey].(*config.Config)
 	c := toggl.NewClient(cfg.TogglToken.String())
 
 	te, err := c.GetCurrentTimeEntry()

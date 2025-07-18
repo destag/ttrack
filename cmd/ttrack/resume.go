@@ -1,10 +1,11 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/destag/ttrack/internal/config"
 	"github.com/destag/ttrack/internal/toggl"
@@ -17,8 +18,8 @@ var cmdResume = &cli.Command{
 	Action:  runResume,
 }
 
-func runResume(ctx *cli.Context) error {
-	cfg := ctx.Context.Value(configKey).(*config.Config)
+func runResume(ctx context.Context, cmd *cli.Command) error {
+	cfg := cmd.Root().Metadata[configKey].(*config.Config)
 	c := toggl.NewClient(cfg.TogglToken.String())
 
 	te, err := c.GetCurrentTimeEntry()

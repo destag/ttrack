@@ -2,20 +2,21 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"runtime/debug"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/destag/ttrack/internal/config"
 )
 
-type contextKey string
-
 const (
-	configKey contextKey = "config"
+	configKey = "config"
 )
+
+var debugMode bool
 
 func main() {
 	ver := "unknown"
@@ -23,27 +24,34 @@ func main() {
 		ver = info.Main.Version
 	}
 
-	app := &cli.App{
-		Name:                 "ttrack",
-		Usage:                "track time in toggl",
-		DefaultCommand:       "status",
-		EnableBashCompletion: true,
-		Version:              ver,
+	cmd := &cli.Command{
+		Name:                  "ttrack",
+		Usage:                 "track time in toggl",
+		EnableShellCompletion: true,
+		Version:               ver,
+		Metadata:              make(map[string]any),
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:       "config",
-				Value:      "~/.config/ttrack/config.yml",
-				HasBeenSet: true,
-				Action: func(ctx *cli.Context, s string) error {
-					cfg, err := config.Load(s)
-					if err != nil {
-						return err
-					}
-
-					ctx.Context = context.WithValue(ctx.Context, configKey, cfg)
-					return nil
-				},
+			&cli.BoolFlag{
+				Name:        "debug",
+				HideDefault: true,
+				Destination: &debugMode,
 			},
+			&cli.StringFlag{
+				Name:  "config",
+				Value: "~/.config/ttrack/config.yml",
+			},
+		},
+		Before: func(ctx context.Context, cmd *cli.Command) (context.Context, error) {
+			configPath := cmd.String("config")
+			if debugMode {
+				fmt.Printf("Loading config from %s\n", configPath)
+			}
+			cfg, err := config.Load(configPath)
+			if err != nil {
+				return ctx, err
+			}
+			cmd.Metadata[configKey] = cfg
+			return ctx, nil
 		},
 		Commands: []*cli.Command{
 			cmdStart,
@@ -54,7 +62,7 @@ func main() {
 		},
 	}
 
-	if err := app.Run(os.Args); err != nil {
+	if err := cmd.Run(context.Background(), os.Args); err != nil {
 		log.Fatal(err)
 	}
 }
