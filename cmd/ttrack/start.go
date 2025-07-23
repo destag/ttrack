@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strconv"
 
 	"github.com/urfave/cli/v3"
@@ -11,6 +10,7 @@ import (
 	"github.com/destag/ttrack/internal/config"
 	"github.com/destag/ttrack/internal/github"
 	"github.com/destag/ttrack/internal/jira"
+	"github.com/destag/ttrack/internal/project"
 	"github.com/destag/ttrack/internal/toggl"
 )
 
@@ -30,30 +30,25 @@ func runStart(ctx context.Context, cmd *cli.Command) error {
 	gh := github.NewClient(cfg.GithubToken.String())
 	jc := jira.NewClient(cfg.Jira.Username, cfg.Jira.Token.String(), cfg.Jira.BaseURL)
 
-	var project config.Project
-	var id string
-	for rgx, pr := range cfg.Projects {
-		re := regexp.MustCompile(rgx)
-		if matches := re.FindStringSubmatch(cmd.Args().Get(0)); len(matches) > 1 {
-			project = pr
-			id = matches[1]
-			break
-		}
-	}
-
 	if cmd.NArg() != 1 {
 		return cli.ShowAppHelp(cmd)
 	}
 
-	if cmd.Args().Get(0) == "" {
+	input := cmd.Args().Get(0)
+	if input == "" {
 		return cli.Exit("project not provided", 1)
+	}
+
+	proj, id, found := project.Find(cfg.Projects, input)
+	if !found {
+		return cli.Exit("project not found", 1)
 	}
 
 	var title string
 
-	switch project.Type {
+	switch proj.Type {
 	case "jira":
-		task, err := jc.GetTask(cmd.Args().Get(0))
+		task, err := jc.GetTask(id)
 		if err != nil {
 			return err
 		}
@@ -64,7 +59,7 @@ func runStart(ctx context.Context, cmd *cli.Command) error {
 			return err
 		}
 
-		issue, err := gh.GetIssue(project.Project, issueID)
+		issue, err := gh.GetIssue(proj.Project, issueID)
 		if err != nil {
 			return err
 		}
@@ -79,5 +74,5 @@ func runStart(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	return c.StartTimeEntry(usr.DefaultWorkspaceID, title, project.Name)
+	return c.StartTimeEntry(usr.DefaultWorkspaceID, title, proj.Name)
 }

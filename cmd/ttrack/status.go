@@ -29,12 +29,13 @@ func runStatus(ctx context.Context, cmd *cli.Command) error {
 
 	if te.ID == 0 {
 		fmt.Println("No tracking")
-	} else {
-		dur := time.Since(te.Start).Truncate(time.Second)
-		fmt.Printf("Tracking %s %s\n",
-			color.GreenString(te.Description),
-			color.WhiteString(dur.String()))
+		return nil
 	}
+
+	dur := time.Since(te.Start).Truncate(time.Second)
+	fmt.Printf("Tracking %s %s\n",
+		color.GreenString(te.Description),
+		color.WhiteString(dur.String()))
 
 	return nil
 }

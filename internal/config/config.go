@@ -49,9 +49,10 @@ func expandPath(path string) (string, error) {
 }
 
 type Project struct {
-	Name    string `yaml:"name"`
-	Type    string `yaml:"type"`
-	Project string `yaml:"project"`
+	Name         string `yaml:"name"`
+	Type         string `yaml:"type"`
+	Project      string `yaml:"project"`
+	BranchFormat string `yaml:"branch_format"`
 }
 
 type Jira struct {

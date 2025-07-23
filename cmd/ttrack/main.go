@@ -29,6 +29,7 @@ func main() {
 		Usage:                 "track time in toggl",
 		EnableShellCompletion: true,
 		Version:               ver,
+		DefaultCommand:        "status",
 		Metadata:              make(map[string]any),
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
@@ -59,6 +60,7 @@ func main() {
 			cmdFinish,
 			cmdResume,
 			cmdCompletion,
+			cmdCheckout,
 		},
 	}
 
