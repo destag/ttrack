@@ -84,13 +84,13 @@ func (c *Client) GetTask(issueKey string) (*tasks.Task, error) {
 	path := fmt.Sprintf("/rest/api/2/issue/%s", issueKey)
 	body, err := c.get(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get issue: %w", err)
 	}
 
 	var issue Issue
 	err = json.Unmarshal(body, &issue)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal issue: %w", err)
 	}
 
 	return &tasks.Task{ID: issue.Key, Description: issue.Fields.Summary}, nil

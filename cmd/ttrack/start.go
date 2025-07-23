@@ -50,18 +50,18 @@ func runStart(ctx context.Context, cmd *cli.Command) error {
 	case "jira":
 		task, err := jc.GetTask(id)
 		if err != nil {
-			return err
+			return cli.Exit(err.Error(), 1)
 		}
 		title = fmt.Sprintf("%s %s", task.ID, task.Description)
 	case "github":
 		issueID, err := strconv.Atoi(id)
 		if err != nil {
-			return err
+			return cli.Exit(err.Error(), 1)
 		}
 
 		issue, err := gh.GetIssue(proj.Project, issueID)
 		if err != nil {
-			return err
+			return cli.Exit(err.Error(), 1)
 		}
 
 		title = fmt.Sprintf("%s #%d", issue.Title, issue.Number)
@@ -71,7 +71,7 @@ func runStart(ctx context.Context, cmd *cli.Command) error {
 
 	usr, err := c.GetUserInfo()
 	if err != nil {
-		return err
+		return cli.Exit(err.Error(), 1)
 	}
 
 	return c.StartTimeEntry(usr.DefaultWorkspaceID, title, proj.Name)
