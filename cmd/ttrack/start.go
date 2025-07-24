@@ -44,6 +44,11 @@ func runStart(ctx context.Context, cmd *cli.Command) error {
 		return cli.Exit("project not found", 1)
 	}
 
+	if debugMode {
+		fmt.Printf("Project: %s\n", proj.Name)
+		fmt.Printf("ID: %s\n", id)
+	}
+
 	var title string
 
 	switch proj.Type {
