@@ -61,6 +61,7 @@ func main() {
 			cmdResume,
 			cmdCompletion,
 			cmdCheckout,
+			cmdConfig,
 		},
 	}
 

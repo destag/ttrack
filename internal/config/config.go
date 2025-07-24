@@ -48,11 +48,15 @@ func expandPath(path string) (string, error) {
 	return path, nil
 }
 
+type Task struct {
+	Source string `yaml:"source,omitempty"`
+	Type   string `yaml:"type"`
+	Regex  string `yaml:"regex"`
+}
+
 type Project struct {
-	Name         string `yaml:"name"`
-	Type         string `yaml:"type"`
-	Project      string `yaml:"project"`
-	BranchFormat string `yaml:"branch_format"`
+	BranchFormat string `yaml:"branch_format,omitempty"`
+	Tasks        []Task `yaml:"tasks"`
 }
 
 type Jira struct {

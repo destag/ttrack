@@ -39,32 +39,32 @@ func runStart(ctx context.Context, cmd *cli.Command) error {
 		return cli.Exit("project not provided", 1)
 	}
 
-	proj, id, found := project.Find(cfg.Projects, input)
+	proj, found := project.Find(cfg.Projects, input)
 	if !found {
 		return cli.Exit("project not found", 1)
 	}
 
 	if debugMode {
 		fmt.Printf("Project: %s\n", proj.Name)
-		fmt.Printf("ID: %s\n", id)
+		fmt.Printf("ID: %s\n", proj.TaskID)
 	}
 
 	var title string
 
 	switch proj.Type {
 	case "jira":
-		task, err := jc.GetTask(id)
+		task, err := jc.GetTask(proj.TaskID)
 		if err != nil {
 			return cli.Exit(err.Error(), 1)
 		}
 		title = fmt.Sprintf("%s %s", task.ID, task.Description)
 	case "github":
-		issueID, err := strconv.Atoi(id)
+		issueID, err := strconv.Atoi(proj.TaskID)
 		if err != nil {
 			return cli.Exit(err.Error(), 1)
 		}
 
-		issue, err := gh.GetIssue(proj.Project, issueID)
+		issue, err := gh.GetIssue(proj.Source, issueID)
 		if err != nil {
 			return cli.Exit(err.Error(), 1)
 		}

@@ -6,12 +6,28 @@ import (
 	"github.com/destag/ttrack/internal/config"
 )
 
-func Find(projects map[string]config.Project, input string) (config.Project, string, bool) {
-	for rgx, pr := range projects {
-		re := regexp.MustCompile(rgx)
-		if matches := re.FindStringSubmatch(input); len(matches) > 0 {
-			return pr, matches[0], true
+type Project struct {
+	Name         string
+	TaskID       string
+	Type         string
+	Source       string
+	BranchFormat string
+}
+
+func Find(projects map[string]config.Project, input string) (Project, bool) {
+	for name, pr := range projects {
+		for _, task := range pr.Tasks {
+			re := regexp.MustCompile(task.Regex)
+			if matches := re.FindStringSubmatch(input); len(matches) > 0 {
+				return Project{
+					Name:         name,
+					TaskID:       matches[0],
+					Type:         task.Type,
+					Source:       task.Source,
+					BranchFormat: pr.BranchFormat,
+				}, true
+			}
 		}
 	}
-	return config.Project{}, "", false
+	return Project{}, false
 }

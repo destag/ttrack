@@ -31,7 +31,7 @@ func runCheckout(ctx context.Context, cmd *cli.Command) error {
 		return cli.Exit("No tracking in progress", 1)
 	}
 
-	proj, id, found := project.Find(cfg.Projects, te.Description)
+	proj, found := project.Find(cfg.Projects, te.Description)
 	if !found {
 		return cli.Exit("Could not find project for running task", 1)
 	}
@@ -40,7 +40,7 @@ func runCheckout(ctx context.Context, cmd *cli.Command) error {
 		return cli.Exit("Branch format not configured for this project", 1)
 	}
 
-	branchName := fmt.Sprintf(proj.BranchFormat, id)
+	branchName := fmt.Sprintf(proj.BranchFormat, proj.TaskID)
 
 	fmt.Printf("Checking out branch: %s\n", branchName)
 
