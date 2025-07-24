@@ -44,5 +44,10 @@ func runCheckout(ctx context.Context, cmd *cli.Command) error {
 
 	fmt.Printf("Checking out branch: %s\n", branchName)
 
-	return exec.Command("git", "checkout", "-b", branchName).Run()
+	if err := exec.Command("git", "checkout", branchName).Run(); err != nil {
+		fmt.Println("Branch does not exist, creating")
+		return exec.Command("git", "checkout", "-b", branchName).Run()
+	}
+
+	return nil
 }
