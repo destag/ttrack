@@ -59,7 +59,6 @@ func main() {
 			cmdStatus,
 			cmdFinish,
 			cmdResume,
-			cmdCompletion,
 			cmdCheckout,
 			cmdConfig,
 		},
