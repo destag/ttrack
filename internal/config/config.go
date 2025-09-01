@@ -11,7 +11,7 @@ import (
 
 type secret string
 
-func (s *secret) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (s *secret) UnmarshalYAML(unmarshal func(any) error) error {
 	var plainText string
 	if err := unmarshal(&plainText); err == nil {
 		*s = secret(plainText)
@@ -52,6 +52,7 @@ type Task struct {
 	Source string `yaml:"source,omitempty"`
 	Type   string `yaml:"type"`
 	Regex  string `yaml:"regex"`
+	Query  string `yaml:"query,omitempty"`
 }
 
 type Project struct {

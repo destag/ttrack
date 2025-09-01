@@ -7,4 +7,5 @@ type Task struct {
 
 type TaskProvider interface {
 	GetTask(id string) (*Task, error)
+	ListTasks(query string) ([]*Task, error)
 }

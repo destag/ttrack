@@ -18,7 +18,7 @@ var cmdStart = &cli.Command{
 	Name:            "start",
 	Aliases:         []string{"s"},
 	Usage:           "Start time tracker",
-	ArgsUsage:       "<project_name> <issue_id>",
+	ArgsUsage:       "<task_id>",
 	Action:          runStart,
 	HideHelpCommand: true,
 }

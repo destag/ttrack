@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 
 	"github.com/destag/ttrack/internal/tasks"
 )
@@ -57,6 +58,13 @@ type Issue struct {
 	Fields Fields `json:"fields"`
 }
 
+func (i Issue) toTask() *tasks.Task {
+	return &tasks.Task{
+		ID:          i.Key,
+		Description: i.Fields.Summary,
+	}
+}
+
 type Fields struct {
 	Summary     string    `json:"summary"`
 	Description string    `json:"description"`
@@ -93,5 +101,28 @@ func (c *Client) GetTask(issueKey string) (*tasks.Task, error) {
 		return nil, fmt.Errorf("failed to unmarshal issue: %w", err)
 	}
 
-	return &tasks.Task{ID: issue.Key, Description: issue.Fields.Summary}, nil
+	return issue.toTask(), nil
+}
+
+func (c *Client) ListTasks(query string) ([]*tasks.Task, error) {
+	encodedJQL := url.QueryEscape(query)
+	path := fmt.Sprintf("/rest/api/2/search?jql=%s", encodedJQL)
+	body, err := c.get(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get issues: %w", err)
+	}
+
+	var resp struct {
+		Issues []Issue `json:"issues"`
+	}
+	err = json.Unmarshal(body, &resp)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal issues: %w", err)
+	}
+
+	var out []*tasks.Task
+	for _, issue := range resp.Issues {
+		out = append(out, issue.toTask())
+	}
+	return out, nil
 }
