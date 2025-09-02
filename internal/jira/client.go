@@ -44,11 +44,20 @@ func (c *Client) get(path string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	return io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf(
+			"unexpected status code: %d with body: %s",
+			resp.StatusCode,
+			string(body),
+		)
+	}
+
+	return body, nil
 }
 
 type Issue struct {
@@ -106,7 +115,7 @@ func (c *Client) GetTask(issueKey string) (*tasks.Task, error) {
 
 func (c *Client) ListTasks(query string) ([]*tasks.Task, error) {
 	encodedJQL := url.QueryEscape(query)
-	path := fmt.Sprintf("/rest/api/2/search?jql=%s", encodedJQL)
+	path := fmt.Sprintf("/rest/api/3/search/jql?jql=%s&fields=summary,status", encodedJQL)
 	body, err := c.get(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get issues: %w", err)
