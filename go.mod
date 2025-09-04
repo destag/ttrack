@@ -6,7 +6,7 @@ require (
 	github.com/fatih/color v1.18.0
 	github.com/goccy/go-yaml v1.18.0
 	github.com/matryer/is v1.4.1
-	github.com/urfave/cli/v3 v3.3.8
+	github.com/urfave/cli/v3 v3.4.1
 )
 
 require (
