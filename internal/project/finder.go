@@ -21,7 +21,7 @@ func Find(projects map[string]config.Project, input string) (Project, bool) {
 			if matches := re.FindStringSubmatch(input); len(matches) > 0 {
 				return Project{
 					Name:         name,
-					TaskID:       matches[0],
+					TaskID:       matches[len(matches)-1],
 					Type:         task.Type,
 					Source:       task.Source,
 					BranchFormat: pr.BranchFormat,
