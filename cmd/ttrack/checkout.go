@@ -16,7 +16,14 @@ var cmdCheckout = &cli.Command{
 	Name:    "checkout",
 	Aliases: []string{"co"},
 	Usage:   "Checkout a branch for the current task",
-	Action:  runCheckout,
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:  "suffix",
+			Value: "",
+			Usage: "Append suffix to branch name",
+		},
+	},
+	Action: runCheckout,
 }
 
 func runCheckout(ctx context.Context, cmd *cli.Command) error {
@@ -41,6 +48,10 @@ func runCheckout(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	branchName := fmt.Sprintf(proj.BranchFormat, proj.TaskID)
+
+	if suffix := cmd.String("suffix"); suffix != "" {
+		branchName = fmt.Sprintf("%s-%s", branchName, suffix)
+	}
 
 	fmt.Printf("Checking out branch: %s\n", branchName)
 
