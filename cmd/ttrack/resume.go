@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/fatih/color"
 	"github.com/urfave/cli/v3"
 
 	"github.com/destag/ttrack/internal/config"
@@ -44,6 +45,6 @@ func runResume(ctx context.Context, cmd *cli.Command) error {
 
 	te = tes[0]
 
-	fmt.Println("Resuming tracker")
+	fmt.Printf("%s resuming %s\n", playIcon, color.WhiteString(te.Description))
 	return c.StartTimeEntry(te.WorkspaceID, te.Description, te.ProjectName)
 }

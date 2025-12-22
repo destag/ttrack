@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v3"
@@ -32,6 +33,12 @@ func runStop(ctx context.Context, cmd *cli.Command) error {
 		return nil
 	}
 
-	fmt.Printf("Stopping tracking %s\n", color.GreenString(te.Description))
+	dur := time.Since(te.Start).Truncate(time.Second)
+	fmt.Printf(
+		"%s stopping %s %s\n",
+		stopIcon,
+		color.WhiteString(te.Description),
+		color.HiCyanString(dur.String()),
+	)
 	return c.StopTimeEntry(te)
 }

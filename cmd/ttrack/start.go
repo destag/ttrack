@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/fatih/color"
 	"github.com/urfave/cli/v3"
 
 	"github.com/destag/ttrack/internal/config"
@@ -24,7 +25,6 @@ var cmdStart = &cli.Command{
 }
 
 func runStart(ctx context.Context, cmd *cli.Command) error {
-	fmt.Println("Starting tracker")
 	cfg := cmd.Root().Metadata[configKey].(*config.Config)
 	c := toggl.NewClient(cfg.TogglToken.String())
 	gh := github.NewClient(cfg.GithubToken.String())
@@ -79,5 +79,13 @@ func runStart(ctx context.Context, cmd *cli.Command) error {
 		return cli.Exit(err.Error(), 1)
 	}
 
-	return c.StartTimeEntry(usr.DefaultWorkspaceID, title, proj.Name)
+	err = c.StartTimeEntry(usr.DefaultWorkspaceID, title, proj.Name)
+	if err != nil {
+		return cli.Exit(err.Error(), 1)
+	}
+
+	fmt.Printf("%s starting %s\n",
+		playIcon,
+		color.WhiteString(title))
+	return nil
 }

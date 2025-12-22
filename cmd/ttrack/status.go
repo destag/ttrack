@@ -12,6 +12,13 @@ import (
 	"github.com/destag/ttrack/internal/toggl"
 )
 
+var (
+	playIcon      = color.HiCyanString(" ▶")
+	stopIcon      = color.HiCyanString(" ■")
+	branchIcon    = color.HiCyanString(" ")
+	addBranchIcon = color.HiCyanString(" 󱓊")
+)
+
 var cmdStatus = &cli.Command{
 	Name:   "status",
 	Usage:  "Check current tracking",
@@ -28,14 +35,15 @@ func runStatus(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	if te.ID == 0 {
-		fmt.Println("No tracking")
+		fmt.Printf("%s not running\n", stopIcon)
 		return nil
 	}
 
 	dur := time.Since(te.Start).Truncate(time.Second)
-	fmt.Printf("Tracking %s %s\n",
-		color.GreenString(te.Description),
-		color.WhiteString(dur.String()))
+	fmt.Printf("%s running %s %s\n",
+		playIcon,
+		color.WhiteString(te.Description),
+		color.HiCyanString(dur.String()))
 
 	return nil
 }

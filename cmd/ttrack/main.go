@@ -18,6 +18,13 @@ const (
 
 var debugMode bool
 
+var (
+	playIcon      = color.HiCyanString(" ▶")
+	stopIcon      = color.HiCyanString(" ■")
+	branchIcon    = color.HiCyanString(" ")
+	addBranchIcon = color.HiCyanString(" 󱓊")
+)
+
 func main() {
 	ver := "unknown"
 	if info, ok := debug.ReadBuildInfo(); ok {

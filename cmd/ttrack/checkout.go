@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 
+	"github.com/fatih/color"
 	"github.com/urfave/cli/v3"
 
 	"github.com/destag/ttrack/internal/config"
@@ -53,10 +54,10 @@ func runCheckout(ctx context.Context, cmd *cli.Command) error {
 		branchName = fmt.Sprintf("%s-%s", branchName, suffix)
 	}
 
-	fmt.Printf("Checking out branch: %s\n", branchName)
+	fmt.Printf("%s checking out branch %s\n", branchIcon, color.HiCyanString(branchName))
 
 	if err := exec.Command("git", "checkout", branchName).Run(); err != nil {
-		fmt.Println("Branch does not exist, creating")
+		fmt.Printf("%s branch does not exist, creating\n", addBranchIcon)
 		return exec.Command("git", "checkout", "-b", branchName).Run()
 	}
 
