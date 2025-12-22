@@ -17,7 +17,7 @@ import (
 
 var cmdList = &cli.Command{
 	Name:            "list",
-	Aliases:         []string{"l"},
+	Aliases:         []string{"ls"},
 	Usage:           "List available tasks",
 	ArgsUsage:       "<project>",
 	Action:          runList,
@@ -59,7 +59,7 @@ func runList(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	for _, task := range ts {
-		fmt.Printf("%s %s\n", color.BlueString(task.ID), task.Description)
+		fmt.Printf(" %s %s\n", color.HiCyanString(task.ID), task.Description)
 	}
 
 	return nil
