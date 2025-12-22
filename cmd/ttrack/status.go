@@ -12,13 +12,6 @@ import (
 	"github.com/destag/ttrack/internal/toggl"
 )
 
-var (
-	playIcon      = color.HiCyanString(" ▶")
-	stopIcon      = color.HiCyanString(" ■")
-	branchIcon    = color.HiCyanString(" ")
-	addBranchIcon = color.HiCyanString(" 󱓊")
-)
-
 var cmdStatus = &cli.Command{
 	Name:   "status",
 	Usage:  "Check current tracking",
